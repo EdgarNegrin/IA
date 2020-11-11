@@ -52,10 +52,10 @@ bool table::isClose(vector<node> closeList, node node) {
   return false;
 }
 
-bool table::isOpen(list<node> openList, node node1) {
-  list<node>::iterator it;
+bool table::isOpen(list<node*> openList, node node1) {
+  list<node*>::iterator it;
   for (it = openList.begin(); it != openList.end(); it++) {
-    if ((it->x == node1.x) && (it->y == node1.y)) {
+    if (((*it)->x == node1.x) && ((*it)->y == node1.y)) {
       return true;         
     }
   }
@@ -73,79 +73,61 @@ int table::calculeH_euclidean(int fila, int columna) {
   return H;
 } 
 
-void table::neighboring(vector<node>& vector, node actual) {
-  node temp;
-  temp.x = -1;
-  temp.y = -1;
-  if (isValid(actual.x - 1, actual.y)) {
-    temp.x = actual.x - 1;
-    temp.y = actual.y;
-  }
-  vector[0] = temp;
-  temp.x = -1;
-  temp.y = -1;
-  if (isValid(actual.x, actual.y - 1)) {
-    temp.x = actual.x;
-    temp.y = actual.y - 1;
-  }
-  vector[1] = temp;
-  temp.x = -1;
-  temp.y = -1;
-  if (isValid(actual.x + 1, actual.y)) {
-    temp.x = actual.x + 1;
-    temp.y = actual.y;
-  }
-  vector[2] = temp;
-  temp.x = -1;
-  temp.y = -1;
-  if (isValid(actual.x, actual.y + 1)) {
-    temp.x = actual.x;
-    temp.y = actual.y + 1;
-  }
-  vector[3] = temp;
+void table::neighboring(vector<node*>& vector, node actual) {
+  vector[0] = NULL;
+  vector[1] = NULL;
+  vector[2] = NULL;
+  vector[3] = NULL;
+  if (isValid(actual.x - 1, actual.y))
+    vector[0] = &tablero_[actual.x - 1][actual.y];
+  if (isValid(actual.x, actual.y - 1))
+    vector[1] = &tablero_[actual.x][actual.y - 1];
+  if (isValid(actual.x + 1, actual.y)) 
+    vector[2] = &tablero_[actual.x + 1][actual.y];
+  if (isValid(actual.x, actual.y + 1))
+    vector[3] = &tablero_[actual.x][actual.y + 1];
 }
 
 void table::aStar() {
 
-  vector<node> neighs;
-  vector<vector<node> > tablero;
-  tablero.resize(filas_);
+  vector<node*> neighs;
+  tablero_.resize(filas_);
   for (int i = 0; i < filas_; i++) {
-    tablero[i].resize(columnas_);
+    tablero_[i].resize(columnas_);
   }
   for (int i = 0; i < filas_; i++) {
     for (int j = 0; j < columnas_; j++){
-      tablero[i][j].x = i;
-      tablero[i][j].y = j;
-      tablero[i][j].h = 0;
-      tablero[i][j].g = FLT_MAX;
-      tablero[i][j].f = 0;
-      tablero[i][j].parent = NULL;
+      tablero_[i][j].x = i;
+      tablero_[i][j].y = j;
+      tablero_[i][j].h = 0;
+      tablero_[i][j].g = FLT_MAX;
+      tablero_[i][j].f = 0;
+      tablero_[i][j].parent = NULL;
     }
   }
   vector<node> track;
-  list<node> openList;
+  list<node*> openList;
   vector<node> closeList; // Hacer bool en el node para saber si esta en close
-  tablero[car_[0]][car_[1]].h = calculeH_manhattan(car_[0], car_[1]);
-  tablero[car_[0]][car_[1]].g = 0;
-  tablero[car_[0]][car_[1]].f = 0;
+  tablero_[car_[0]][car_[1]].h = calculeH_manhattan(car_[0], car_[1]);
+  tablero_[car_[0]][car_[1]].g = 0;
+  tablero_[car_[0]][car_[1]].f = 0;
 
-  openList.push_back(tablero[car_[0]][car_[1]]); // Posicion inicial
+  openList.push_back(&tablero_[car_[0]][car_[1]]); // Posicion inicial
   bool finish = false;
   node actual;
-  list<node>::iterator winner, it;
+  list<node*>::iterator winner, it;
   
     while (!openList.empty() && !finish) {
       // Calculamos el minimo coste del OPEN
       winner = openList.begin();
       for (it = openList.begin(); it != openList.end(); it++) {
-        if (it->f < winner->f)
+        if ((*it)->f < (*winner)->f)
           winner = it;
       }
-      actual = *winner;
+      actual = **winner;
       // Comprobamos que no es el destino
       if (isDestination(actual.x, actual.y)){
-        node temp = tablero[actual.x][actual.y];
+        node temp = tablero_[actual.x][actual.y];
         track.push_back(temp);
         while (temp.parent != NULL) {
           temp = *temp.parent;
@@ -156,29 +138,24 @@ void table::aStar() {
       } else {
         // eliminar de OPEN al nodo actual y lo metemos en CLOSE
         openList.erase(winner);
-        closeList.push_back(tablero[actual.x][actual.y]);
+        closeList.push_back(tablero_[actual.x][actual.y]);
         neighboring(neighs, actual); // Coge bien los vecinos
         for (int i = 0; i < neighs.size(); i++) { // Revisar porque recorre varias veces los mismos vecinos
-          if ((neighs[i].x != -1) && (neighs[i].y != -1)) {
+          if ((neighs[i]->x != -1) && (neighs[i]->y != -1)) {
             // hacer for para rescorre todo el close y comprobar que no esta
             float tempG = actual.g + 1;
-            if (!isClose(closeList, neighs[i])) { // No esta en CLOSE
-              if (tempG < tablero[neighs[i].x][neighs[i].y].g) { // Esta en OPEN
-                tablero[neighs[i].x][neighs[i].y].g = tempG;
-                tablero[neighs[i].x][neighs[i].y].h = calculeH_manhattan(neighs[i].x, neighs[i].y);
-                tablero[neighs[i].x][neighs[i].y].f = tablero[neighs[i].x][neighs[i].y].g + tablero[neighs[i].x][neighs[i].y].h;
-                tablero[neighs[i].x][neighs[i].y].parent = &tablero[actual.x][actual.y];
+            if (!isClose(closeList, *neighs[i])) { // No esta en CLOSE
+              if (tempG < tablero_[neighs[i]->x][neighs[i]->y].g) { // Esta en OPEN
+                neighs[i]->g = tempG;
+                neighs[i]->h = calculeH_manhattan(neighs[i]->x, neighs[i]->y);
+                neighs[i]->f = neighs[i]->g + neighs[i]->h;
+                neighs[i]->parent = &tablero_[actual.x][actual.y];
               } 
-              if (!isOpen(openList, neighs[i])) {
-                openList.push_back(tablero[neighs[i].x][neighs[i].y]);
+              if (!isOpen(openList, *neighs[i])) {
+                openList.push_back(&tablero_[neighs[i]->x][neighs[i]->y]);
               } else {
-                for (it = openList.begin(); it != openList.end(); it++) {
-                  if ((it->x == neighs[i].x) && (it->y == neighs[i].y)) {
-                    it->g = tablero[neighs[i].x][neighs[i].y].g;
-                    it->h = tablero[neighs[i].x][neighs[i].y].h;
-                    it->f = tablero[neighs[i].x][neighs[i].y].f;
-                  }
-                }
+                neighs[i]->g = tempG;
+                neighs[i]->f = neighs[i]->g + neighs[i]->h;
               }
             } 
             // Si esta en CLOSE por lo que se continua 

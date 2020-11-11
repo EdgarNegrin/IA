@@ -20,9 +20,9 @@
 // 2 min ejecucion programa. 2 min aspectos fundamentales del algoritmo. 2 min aspectos de informe. 2 min preguntas.
 
 int main(){
-  table tablero(200,200,5); // pasar el numero de obstaculos
+  table tablero(20,20,5); // pasar el numero de obstaculos
   tablero.position_car(0,0);
-  tablero.position_destination(199,199);
+  tablero.position_destination(10,10);
   tablero.position_obstacle(0,6,0);
   tablero.position_obstacle(1,5,1);
   tablero.position_obstacle(1,4,2);

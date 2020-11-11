@@ -24,6 +24,7 @@ class table {
     vector<int> car_;
     vector<vector<int> > obstacles_;
     vector<node> track_;
+    vector<vector<node> > tablero_;
   public:
     table();
     table(int, int, int);
@@ -36,12 +37,12 @@ class table {
     bool isValid(int fila, int columna);
     bool isDestination(int fila, int columna);
     bool isClose(vector<node> closeList, node node);
-    bool isOpen(list<node> openList, node node);
+    bool isOpen(list<node*> openList, node node);
 
     int calculeH_manhattan(int fila, int columna);
     int calculeH_euclidean(int fila, int columna);
 
-    void neighboring(vector<node>&, node);
+    void neighboring(vector<node*>&, node);
     void aStar();
 
     friend ostream& operator <<(ostream&, table);
