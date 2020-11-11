@@ -30,7 +30,7 @@ bool check_random(vector<int> vector1, vector<int> vector2, int num1, int num2) 
 }
 
 int main(int argc, char** argv){
-  int filas, columnas, n_obstaculos, type_obj, show_details, funcion, fila, columna;
+  int filas, columnas, n_obstaculos, type_obj, show_details, funcion, fila, columna, T0, T1;
   vector<int> v_fila, v_columna;
   if (argc == 2){
     ifstream file(argv[1]);
@@ -68,7 +68,9 @@ int main(int argc, char** argv){
     }
     file >> funcion;
     file >> show_details;
+    T0 = clock();
     tablero.aStar(show_details, funcion);
+    T1 = clock();
   } else {
     cout << "Numero de filas: ";
     cin >> filas;
@@ -130,4 +132,6 @@ int main(int argc, char** argv){
     cout << endl;
     tablero.aStar(show_details, funcion);
   }
+  double time = (double(T1-T0)/CLOCKS_PER_SEC);
+  cout << "Tiempo de ejecucion: " << time << endl;
 }

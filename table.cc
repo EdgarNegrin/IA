@@ -181,6 +181,7 @@ void table::aStar(int show_details, int funcion) {
   if (!finish) {
     cout << "No se ha encontrado el camino";
   } else {
+    int track_min = track.size();
     if (show_details == 1){
       track_.resize(track.size());
       while (!track.empty()) {    
@@ -198,6 +199,8 @@ void table::aStar(int show_details, int funcion) {
       cout << *this;
       cout << endl;
     }
+    cout << "Camino minimo: " << track_min << endl;
+    cout << "Numero de nodos expandido: " << closeList.size() << endl;
   }
 }
 
@@ -209,33 +212,33 @@ ostream& operator <<(ostream& os, table tablero) {
       obstacle = false;
       track = false;
       if ((tablero.car_[0]) == i && (tablero.car_[1] == j)) {
-        os << "©";
+        os << " ©";
       } else {
         for (int k = 0; k < tablero.obstacles_.size(); k++) {
           if (tablero.obstacles_[k][0] == i && tablero.obstacles_[k][1] == j) {
-            os << "▣";
+            os << " ▣";
             obstacle = true;
           }
         }
         if (!obstacle) {
           if (tablero.isDestination(i,j)) {
-            os << "D";
+            os << " D";
           }  
           for (int k = 0; k < tablero.track_.size(); k++) {
             if (tablero.show_details_ == 1) {
               if ((tablero.track_[k].x == i) && (tablero.track_[k].y == j) && !tablero.isDestination(i,j) && !track) { // Poner !track si se quiere mostrar individual
-                os << "X";
+                os << " X";
                 track = true;
               }
             } else {
               if ((tablero.track_[k].x == i) && (tablero.track_[k].y == j) && !tablero.isDestination(i,j)) { // Poner !track si se quiere mostrar individual
-                os << "X";
+                os << " X";
                 track = true;
               }
             }
           }
           if (!track && !tablero.isDestination(i,j))
-            os << "·";
+            os << " ·";
         }
       }
     }
