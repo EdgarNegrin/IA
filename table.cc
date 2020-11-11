@@ -4,10 +4,10 @@ table::table() {
 
 }
 
-table::table(int filas, int columnas, int tamaño) {
+table::table(int filas, int columnas, int tam) {
   filas_ = filas;
   columnas_ = columnas;
-  obstacles_.resize(tamaño);
+  obstacles_.resize(tam);
   tablero_.resize(filas_);
   for (int i = 0; i < filas_; i++) {
     tablero_[i].resize(columnas_);
