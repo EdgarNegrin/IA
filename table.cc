@@ -163,7 +163,7 @@ void table::aStar() {
             // hacer for para rescorre todo el close y comprobar que no esta
             float tempG = actual.g + 1;
             if (!isClose(closeList, neighs[i])) { // No esta en CLOSE
-              if (isOpen(openList, neighs[i]) || tempG < tablero[neighs[i].x][neighs[i].y].g) { // Esta en OPEN
+              if (tempG < tablero[neighs[i].x][neighs[i].y].g) { // Esta en OPEN
                 tablero[neighs[i].x][neighs[i].y].g = tempG;
                 tablero[neighs[i].x][neighs[i].y].h = calculeH_manhattan(neighs[i].x, neighs[i].y);
                 tablero[neighs[i].x][neighs[i].y].f = tablero[neighs[i].x][neighs[i].y].g + tablero[neighs[i].x][neighs[i].y].h;
@@ -171,6 +171,14 @@ void table::aStar() {
               } 
               if (!isOpen(openList, neighs[i])) {
                 openList.push_back(tablero[neighs[i].x][neighs[i].y]);
+              } else {
+                for (it = openList.begin(); it != openList.end(); it++) {
+                  if ((it->x == neighs[i].x) && (it->y == neighs[i].y)) {
+                    it->g = tablero[neighs[i].x][neighs[i].y].g;
+                    it->h = tablero[neighs[i].x][neighs[i].y].h;
+                    it->f = tablero[neighs[i].x][neighs[i].y].f;
+                  }
+                }
               }
             } 
             // Si esta en CLOSE por lo que se continua 
