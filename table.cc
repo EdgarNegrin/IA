@@ -68,12 +68,19 @@ bool table::isClose(vector<node> closeList, node node) {
 
 bool table::isOpen(list<node*> openList, node node1) {
   list<node*>::iterator it;
+  /* 
+  it = find(openList.begin(), openList.end(), node1);
+  if (it != openList.end())
+    return true;
+  return false;
+  */
   for (it = openList.begin(); it != openList.end(); it++) {
     if (((*it)->x == node1.x) && ((*it)->y == node1.y)) {
       return true;         
     }
   }
   return false;
+  
 }
 
 // Calculo de H
@@ -104,7 +111,7 @@ void table::neighboring(vector<node*>& vector, node actual) {
 
 void table::aStar() {
 
-  vector<node*> neighs;
+  vector<node*> neighs(4);
   vector<node> track;
   list<node*> openList;
   vector<node> closeList; // Hacer bool en el node para saber si esta en close
@@ -145,7 +152,7 @@ void table::aStar() {
             // hacer for para rescorre todo el close y comprobar que no esta
             float tempG = tablero_[actual.x][actual.y].g + 1;
             if (!isClose(closeList, *neighs[i])) { // No esta en CLOSE
-              if (tempG < tablero_[neighs[i]->x][neighs[i]->y].g) { // Esta en OPEN
+              if (tempG < neighs[i]->g) { // Esta en OPEN
                 neighs[i]->g = tempG;
                 neighs[i]->h = calculeH_manhattan(neighs[i]->x, neighs[i]->y);
                 neighs[i]->f = neighs[i]->g + neighs[i]->h;
