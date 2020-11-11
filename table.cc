@@ -8,6 +8,20 @@ table::table(int filas, int columnas, int tamaño) {
   filas_ = filas;
   columnas_ = columnas;
   obstacles_.resize(tamaño);
+  tablero_.resize(filas_);
+  for (int i = 0; i < filas_; i++) {
+    tablero_[i].resize(columnas_);
+  }
+  for (int i = 0; i < filas_; i++) {
+    for (int j = 0; j < columnas_; j++){
+      tablero_[i][j].x = i;
+      tablero_[i][j].y = j;
+      tablero_[i][j].h = 0;
+      tablero_[i][j].g = FLT_MAX;
+      tablero_[i][j].f = 0;
+      tablero_[i][j].parent = NULL;
+    }
+  }
 }
 
 void table::position_car(int fila, int columna) {
@@ -91,20 +105,6 @@ void table::neighboring(vector<node*>& vector, node actual) {
 void table::aStar() {
 
   vector<node*> neighs;
-  tablero_.resize(filas_);
-  for (int i = 0; i < filas_; i++) {
-    tablero_[i].resize(columnas_);
-  }
-  for (int i = 0; i < filas_; i++) {
-    for (int j = 0; j < columnas_; j++){
-      tablero_[i][j].x = i;
-      tablero_[i][j].y = j;
-      tablero_[i][j].h = 0;
-      tablero_[i][j].g = FLT_MAX;
-      tablero_[i][j].f = 0;
-      tablero_[i][j].parent = NULL;
-    }
-  }
   vector<node> track;
   list<node*> openList;
   vector<node> closeList; // Hacer bool en el node para saber si esta en close
@@ -141,9 +141,9 @@ void table::aStar() {
         closeList.push_back(tablero_[actual.x][actual.y]);
         neighboring(neighs, actual); // Coge bien los vecinos
         for (int i = 0; i < neighs.size(); i++) { // Revisar porque recorre varias veces los mismos vecinos
-          if ((neighs[i]->x != -1) && (neighs[i]->y != -1)) {
+          if (neighs[i] != NULL) {
             // hacer for para rescorre todo el close y comprobar que no esta
-            float tempG = actual.g + 1;
+            float tempG = tablero_[actual.x][actual.y].g + 1;
             if (!isClose(closeList, *neighs[i])) { // No esta en CLOSE
               if (tempG < tablero_[neighs[i]->x][neighs[i]->y].g) { // Esta en OPEN
                 neighs[i]->g = tempG;
