@@ -3,6 +3,10 @@
 #include <cmath>
 #include <cfloat>
 #include <list>
+#include <stdlib.h>
+#include <time.h>
+#include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -25,6 +29,7 @@ class table {
     vector<vector<int> > obstacles_;
     vector<node> track_;
     vector<vector<node> > tablero_;
+    int show_details_;
   public:
     table();
     table(int, int, int);
@@ -39,11 +44,11 @@ class table {
     bool isClose(vector<node> closeList, node node);
     bool isOpen(list<node*> openList, node node);
 
-    int calculeH_manhattan(int fila, int columna);
-    int calculeH_euclidean(int fila, int columna);
+    float calculeH_manhattan(int fila, int columna);
+    float calculeH_euclidean(int fila, int columna);
 
     void neighboring(vector<node*>&, node);
-    void aStar();
+    void aStar(int, int);
 
     friend ostream& operator <<(ostream&, table);
 };

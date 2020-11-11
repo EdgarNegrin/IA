@@ -84,13 +84,13 @@ bool table::isOpen(list<node*> openList, node node1) {
 }
 
 // Calculo de H
-int table::calculeH_manhattan(int fila, int columna) {
-  int H = abs(fila - destination_[0]) + abs(columna - destination_[1]);
+float table::calculeH_manhattan(int fila, int columna) {
+  float H = abs(fila - destination_[0]) + abs(columna - destination_[1]);
   return H;
 } 
 
-int table::calculeH_euclidean(int fila, int columna) {
-  int H = sqrt(((fila - destination_[0]) * 2) + (columna - destination_[1]) * 2);
+float table::calculeH_euclidean(int fila, int columna) {
+  float H = sqrt(pow((abs(destination_[0] - fila)), 2) + pow((abs(destination_[1] - columna)), 2));
   return H;
 } 
 
@@ -109,16 +109,19 @@ void table::neighboring(vector<node*>& vector, node actual) {
     vector[3] = &tablero_[actual.x][actual.y + 1];
 }
 
-void table::aStar() {
-
+void table::aStar(int show_details, int funcion) {
+  show_details_ = show_details;
   vector<node*> neighs(4);
   vector<node> track;
   list<node*> openList;
   vector<node> closeList; // Hacer bool en el node para saber si esta en close
-  tablero_[car_[0]][car_[1]].h = calculeH_manhattan(car_[0], car_[1]);
+  if (funcion == 1) {
+    //tablero_[car_[0]][car_[1]].h = calculeH_manhattan(car_[0], car_[1]);
+  } else {
+    tablero_[car_[0]][car_[1]].h = calculeH_euclidean(car_[0], car_[1]);
+  }
   tablero_[car_[0]][car_[1]].g = 0;
   tablero_[car_[0]][car_[1]].f = 0;
-
   openList.push_back(&tablero_[car_[0]][car_[1]]); // Posicion inicial
   bool finish = false;
   node actual;
@@ -154,7 +157,11 @@ void table::aStar() {
             if (!isClose(closeList, *neighs[i])) { // No esta en CLOSE
               if (tempG < neighs[i]->g) { // Esta en OPEN
                 neighs[i]->g = tempG;
-                neighs[i]->h = calculeH_manhattan(neighs[i]->x, neighs[i]->y);
+                if (funcion == 1) {
+                  //neighs[i]->h = calculeH_manhattan(neighs[i]->x, neighs[i]->y);
+                } else {
+                  neighs[i]->h = calculeH_euclidean(neighs[i]->x, neighs[i]->y);
+                }
                 neighs[i]->f = neighs[i]->g + neighs[i]->h;
                 neighs[i]->parent = &tablero_[actual.x][actual.y];
               } 
@@ -170,24 +177,28 @@ void table::aStar() {
         }
       }
     }
-
-  // Mostrar todos los movimientos en individual
-  /* 
-  track_.resize(track.size());
-  while (!track.empty()) {
-    track_.push_back(track[track.size()]);
-    car_[0] = track[track.size() - 1].x;
-    car_[1] = track[track.size() - 1].y;
-    track.pop_back();
-    cout << *this;
-    cout << endl;
-  }
-  */
   
-  track_ = track;
-  car_[0] = track[track.size() - 1].x;
-  car_[1] = track[track.size() - 1].y;
-  std::cout << *this;
+  if (!finish) {
+    cout << "No se ha encontrado el camino";
+  } else {
+    if (show_details == 1){
+      track_.resize(track.size());
+      while (!track.empty()) {    
+        car_[0] = track[track.size() - 1].x;
+        car_[1] = track[track.size() - 1].y;
+        track_.push_back(track[track.size()]);
+        track.pop_back();
+        cout << *this;
+        cout << endl;
+      }
+    } else {
+      car_[0] = destination_[0];
+      car_[1] = destination_[1];
+      track_ = track;
+      cout << *this;
+      cout << endl;
+    }
+  }
 }
 
 ostream& operator <<(ostream& os, table tablero) {
@@ -211,9 +222,16 @@ ostream& operator <<(ostream& os, table tablero) {
             os << "D";
           }  
           for (int k = 0; k < tablero.track_.size(); k++) {
-            if ((tablero.track_[k].x == i) && (tablero.track_[k].y == j) && !tablero.isDestination(i,j)) { // Poner !track si se quiere mostrar individual
-              os << "X";
-              track = true;
+            if (tablero.show_details_ == 1) {
+              if ((tablero.track_[k].x == i) && (tablero.track_[k].y == j) && !tablero.isDestination(i,j) && !track) { // Poner !track si se quiere mostrar individual
+                os << "X";
+                track = true;
+              }
+            } else {
+              if ((tablero.track_[k].x == i) && (tablero.track_[k].y == j) && !tablero.isDestination(i,j)) { // Poner !track si se quiere mostrar individual
+                os << "X";
+                track = true;
+              }
             }
           }
           if (!track && !tablero.isDestination(i,j))
